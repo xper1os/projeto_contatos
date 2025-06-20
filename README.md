@@ -28,7 +28,7 @@ Aplicação web simples e completa (back-end + front-end) para **gerenciar conta
 
 ```
 
-gerenciador\_de\_contatos/
+projeto_contatos/
 │
 ├── backend/                     # Código do servidor e banco
 │   ├── app.py                   # Servidor principal Flask + rotas da API
