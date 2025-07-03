@@ -3,21 +3,21 @@ from contato import Contato
 import banco
 
 # Inicializa o Flask
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    template_folder='../frontend/templates',
+    static_folder='../frontend/static'
+)
 
 # Cria a tabela de contatos se não existir
 banco.criar_tabela()
 
 # Rota para a página inicial
-
-
 @app.route('/')
 def index():
     return render_template('index.html')  # Renderiza o template HTML
 
 # Rota para listar contatos
-
-
 @app.route('/api/contatos', methods=['GET'])
 def get_contatos():
 
@@ -29,14 +29,12 @@ def get_contatos():
     ])
 
 # Rota para adicionar contato
-
-
 @app.route('/api/contatos', methods=['POST'])
 def add_contato():
     data = request.json
-    contato = Contato(data.get['nome'],
-                      data.get['telefone'],
-                      data.get['email'], "")
+    contato = Contato(data.get('nome'),
+                      data.get('telefone'),
+                      data.get('email'), "")
     banco.adicionar_contato(contato)
     return jsonify({"message": "Contato adicionado com sucesso!"}), 201
 
@@ -52,8 +50,6 @@ def update_contato(id):
     return jsonify({"message": "Contato atualizado com sucesso!"})
 
 # Rota para remover contato
-
-
 @app.route('/api/contatos/<int:id>', methods=['DELETE'])
 def delete_contato(id):
     banco.remover_contato(id)
