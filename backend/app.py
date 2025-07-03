@@ -1,53 +1,65 @@
-import sqlite3
+from flask import Flask, jsonify, request, render_template
+from contato import Contato
+import banco
 
-def conectar():
-    return sqlite3.connect("contatos.db")
+# Inicializa o Flask
+app = Flask(__name__)
 
-def criar_tabela():
-    conn = conectar()
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS contatos (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nome TEXT NOT NULL,
-            telefone TEXT,
-            email TEXT
-        )
-    ''')
-    conn.commit()
-    conn.close()
+# Cria a tabela de contatos se não existir
+banco.criar_tabela()
 
-def adicionar_contato(contato):
-    conn = conectar()
-    cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO contatos (nome, telefone, email) VALUES (?, ?, ?)",
-        (contato.nome, contato.telefone, contato.email)
-    )
-    conn.commit()
-    conn.close()
+# Rota para a página inicial
 
-def listar_contatos():
-    conn = conectar()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM contatos")
-    contatos = cursor.fetchall()
-    conn.close()
-    return contatos
 
-def atualizar_contato(id, contato):
-    conn = conectar()
-    cursor = conn.cursor()
-    cursor.execute(
-        "UPDATE contatos SET nome = ?, telefone = ?, email = ? WHERE id = ?",
-        (contato.nome, contato.telefone, contato.email, id)
-    )
-    conn.commit()
-    conn.close()
+@app.route('/')
+def index():
+    return render_template('index.html')  # Renderiza o template HTML
 
-def remover_contato(id):
-    conn = conectar()
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM contatos WHERE id = ?", (id,))
-    conn.commit()
-    conn.close()
+# Rota para listar contatos
+
+
+@app.route('/api/contatos', methods=['GET'])
+def get_contatos():
+
+    contatos = banco.listar_contatos()
+    return jsonify([
+        {"id": contato[0], "nome": contato[1],
+            "telefone": contato[2], "email": contato[3]}
+        for contato in contatos
+    ])
+
+# Rota para adicionar contato
+
+
+@app.route('/api/contatos', methods=['POST'])
+def add_contato():
+    data = request.json
+    contato = Contato(data.get['nome'],
+                      data.get['telefone'],
+                      data.get['email'], "")
+    banco.adicionar_contato(contato)
+    return jsonify({"message": "Contato adicionado com sucesso!"}), 201
+
+
+# Rota para atualizar contato
+@app.route('/api/contatos/<int:id>', methods=['PUT'])
+def update_contato(id):
+    data = request.json
+    contato = Contato(data.get('nome'),
+                      data.get('telefone'),
+                      data.get('email'))
+    banco.atualizar_contato(id, contato)
+    return jsonify({"message": "Contato atualizado com sucesso!"})
+
+# Rota para remover contato
+
+
+@app.route('/api/contatos/<int:id>', methods=['DELETE'])
+def delete_contato(id):
+    banco.remover_contato(id)
+    return jsonify({"message": "Contato removido com sucesso!"})
+
+
+# Inicia o servidor Flask
+if __name__ == '__main__':
+    app.run(debug=True)
