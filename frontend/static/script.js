@@ -1,74 +1,68 @@
-
+document.addEventListener("DOMContentLoaded", carregarContatos);
 
 async function carregarContatos() {
-    try {
-        const response = await fetch('/api/contatos');
-        const data = await response.json();
-        const listaContatos = document.getElementById('listar_contatos');
-        listaContatos.innerHTML = '';
-        data.forEach(contato => {
-            const li = document.createElement('li');
-            li.textContent = `${contato.nome} - ${contato.telefone} - ${contato.email}`;
-            <button onclick="editarContato(${contato.id}, '${contato.nome}', '${contato.telefone}', '${contato.email}')">Editar</button>;
-            <button onclick="excluirContato(${contato.id})">Excluir</button>
-            listaContatos.appendChild(li);
-        });
-    } catch (error) {
-        console.error('Erro ao carregar contatos:', error);
-    }
+    const res = await fetch("/api/contatos");
+    const contatos = await res.json();
+    const lista = document.getElementById("listar-contatos");
+    lista.innerHTML = "";
+
+    contatos.forEach(c => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            ${c.nome} - ${c.telefone} - ${c.email}
+            <button onclick="editarContato(${c.id}, '${c.nome}', '${c.telefone}', '${c.email}')">Editar</button>
+            <button onclick="removerContato(${c.id})">Excluir</button>
+        `;
+        lista.appendChild(li);
+    });
 }
 
-async function removerContato(id) {
-    try {
-        const response = await fetch(`/api/contatos/${id}`, {
-            method: 'DELETE'
+document.getElementById("form-contato").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    await salvarContato();
+});
+
+async function salvarContato() {
+    const id = document.getElementById("contato-id").value;
+    const nome = document.getElementById("nome").value;
+    const telefone = document.getElementById("telefone").value;
+    const email = document.getElementById("email").value;
+
+    const payload = { nome, telefone, email };
+
+    if (id) {
+        await fetch(`/api/contatos/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
         });
-        if (response.ok) {
-            carregarContatos();
-        } else {
-            console.error('Erro ao excluir contato:', response.statusText);
-        }
-    } catch (error) {
-        console.error('Erro ao excluir contato:', error);
+    } else {
+        await fetch("/api/contatos", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
     }
+
+    limparCampos();
+    carregarContatos();
 }
 
 function editarContato(id, nome, telefone, email) {
-    document.getElementById('contato-id').value = id;
-    document.getElementById('nome').value = nome;
-    document.getElementById('telefone').value = telefone;
-    document.getElementById('email').value = email;
+    document.getElementById("contato-id").value = id;
+    document.getElementById("nome").value = nome;
+    document.getElementById("telefone").value = telefone;
+    document.getElementById("email").value = email;
 }
 
-document.getElementById('form-contato').addEventListener('submit', async e => {
-    e.preventDefault();
-    const id = document.getElementById('contato-id').value;
-    const nome = document.getElementById('nome').value;
-    const telefone = document.getElementById('telefone').value;
-    const email = document.getElementById('email').value;
-    const dados = {nome, telefone, email };
+async function removerContato(id) {
+    await fetch(`/api/contatos/${id}`, { method: "DELETE" });
+    carregarContatos();
+}
 
-    if (id) {
-        // Atualizar contato existente
-        await fetch(`/api/contatos/${id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(dados)
-        });
-    }
-    else {
-        // Adicionar novo contato
-        await fetch('/api/contatos', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(dados)
-        });
-    }
-    document.getElementById('form-contato').reset();
-    document.getElementById('contato-id').value = '';
-});
-carregarContatos();
+function limparCampos() {
+    document.getElementById("contato-id").value = "";
+    document.getElementById("nome").value = "";
+    document.getElementById("telefone").value = "";
+    document.getElementById("email").value = "";
+}

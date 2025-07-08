@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciador Tarefas</title>
+    <script src="/static/script.js" defer></script> 
 </head>
 
 <body>
@@ -14,11 +15,11 @@
         <input type="hidden" id="contato-id">
         <input type="text" id="nome" name="nome" required placeholder="Nome">
         <input type="email" id="email" name="email" placeholder="Email">
-        <input type="telefone" id="telefone" name="telefone" placeholder="Telefone">
+        <input type="text" id="telefone" name="telefone" placeholder="Telefone">
         <button type="submit">Salvar</button>
     </form>
-    <ul id="lista-contatos">
-        <!-- Lista de contatos será preenchida aqui -->
+
+    <ul id="listar-contatos"></ul> 
 </body>
 
 </html>
