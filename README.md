@@ -113,3 +113,4 @@ As APIs trocam dados no formato JSON e são consumidas pelo front-end em tempo r
 * O banco `contatos.db` será criado automaticamente na primeira execução
 * Todos os arquivos do front-end estão em `frontend/templates/` e `frontend/static/`
 * O projeto pode ser facilmente estendido com Bootstrap, React ou deploy em serviços como Render/Heroku
+
